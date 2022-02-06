@@ -3,7 +3,7 @@
     "path": "~/Desktop/winter 2022/STAT 359/equiticity-viz-and-comm/theme.R",
     "project_path": "theme.R",
     "type": "r_source",
-    "hash": "3684060882",
+    "hash": "1523655461",
     "contents": "",
     "dirty": false,
     "created": 1644087550822.0,
@@ -17,11 +17,11 @@
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1644088964,
+    "lastKnownWriteTime": 1644182501,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1644088964294,
+    "last_content_update": 1644182501163,
     "read_only": false,
     "read_only_alternatives": []
 }
