@@ -6,8 +6,8 @@ library(readxl)
 library(viridis)
 
 # datasets I analyzed
-crimes <- read_csv('data/crimes_2021.csv')
-census <- read_excel('data/neighborhood_info.xlsx')
+crimes <- read_csv('data/violence_enforcement/crimes_2021.csv')
+census <- read_excel('data/violence_enforcement/neighborhood_info.xlsx')
 
 # adjusting census data so it can be joined
 census <- census %>% 
@@ -15,9 +15,9 @@ census <- census %>%
   rename(community = neighborhood)
 
 # map data from Chicago Data Portal 
-communities <- read_sf('data/communities/geo_export_45d4da8d-3fc8-4ccb-9b0c-8f546d526c9a.shp')
+communities <- read_sf('data/violence_enforcement/communities/geo_export_45d4da8d-3fc8-4ccb-9b0c-8f546d526c9a.shp')
 
-bike_routes <- read_sf('data/bikes/geo_export_02f6b9aa-6d14-4951-9963-31aeaa95c2b8.shp')
+bike_routes <- read_sf('data/violence_enforcement/bikes/geo_export_02f6b9aa-6d14-4951-9963-31aeaa95c2b8.shp')
 
 # changing communities ID variable so I can join it with crimes
 communities <- communities %>% 
