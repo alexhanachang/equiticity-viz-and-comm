@@ -1,0 +1,4 @@
+"0","shp <- readOGR(dsn = ""data/geo_export_ffbe343c-781b-4dd4-909e-612bd86b9622.shp"")
+"
+"2","Error in ogrListLayers(dsn = dsn) : Cannot open data source
+"

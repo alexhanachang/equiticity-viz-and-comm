@@ -1,1 +1,0 @@
-# equiticity-viz-and-comm

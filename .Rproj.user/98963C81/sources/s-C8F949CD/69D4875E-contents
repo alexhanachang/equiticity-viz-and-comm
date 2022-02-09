@@ -1,0 +1,91 @@
+library(broom)
+library(bslib)
+library(dplyr)
+library(ggplot2)
+library(rgdal)
+library(shiny)
+library(thematic)
+library(tidyverse)
+
+bikeRouteDataFort <- read_rds("data/census/Bike Routes/bikeRouteDataFort.RDS")
+roadsDataChi <- read_rds("data/census/Bike Routes/roadsDataChi.RDS")
+neighborhood_map <- read_sf("neighborhoods/geo_export_9c969155-1ad2-4497-b263-d7a54abec1f1.shp")
+
+crimes_type <- crimes %>% 
+    group_by(community_area, primary_type) %>% 
+    summarise(num_crimes = n()) %>% 
+    filter(num_crimes == max(num_crimes)) %>% 
+    left_join(communities, by = c('community_area' = 'area_numbe'))
+
+equiticitytheme <- bslib::bs_theme(
+    bg = "#FFFFFF", 
+    fg = "#000000", 
+    primary = "#668C7A", 
+    secondary = "#8C5F58", 
+    success = "#6BA033", 
+    info = "#EDFFF6", 
+    warning = "#B4D9C7",
+    danger = "#7F998C"
+)
+
+# map <- ggplot() +
+#     geom_path(data = roadsDataChi,
+#               aes(x = long, y = lat, group = group)) +
+#     geom_path(data = bikeRouteDataFort,
+#               aes(x = long, y = lat, group = group))  +
+#     theme_void() + 
+#     labs(title = "Bike routes + roads in Chicago") + 
+#     theme(title = element_text())
+
+ui <-
+    navbarPage(
+        theme = equiticitytheme,
+        tabsetPanel(
+        tabPanel("Divvy summary", plotOutput("plot")),
+        tabPanel("Divvy station rollout", "three"),
+        navbarMenu("Violence and enforcement", 
+           tabPanel("Gang territories", "map of gang territories"),
+           tabPanel("Crime by type", plotOutput("crime_plot")),
+           tabPanel("panel 3c", "3c")
+        ),
+        navbarMenu("Demographics",
+            tabPanel("Census", "map of gang territories"),
+            tabPanel("panel 4b", "4b"),
+            tabPanel("panel 4c", "4c")
+        ), 
+        tabPanel("About", "TEXT"))
+    ) %>% 
+    
+    fluidPage(
+        titlePanel("HELP"),
+        selectInput("community_area", "Select community area", neighborhood_map$community),
+        dateRangeInput("dates", label = h3("Date range")),
+        hr(),
+        fluidRow(column(4, verbatimTextOutput("value")))
+    )
+
+
+server <- function(input, output, session) {
+    thematic::thematic_shiny()
+    
+    output$plot <- renderPlot({
+        neighborhood_map %>% 
+            filter(community == input$community_area) %>% 
+            ggplot() + 
+                geom_sf() +
+                coord_sf() 
+    })
+    
+    output$crime_plot <- renderPlot({
+        crimes_type %>% 
+            ggplot() +
+            geom_sf(mapping = aes(geometry = geometry, fill = primary_type)) +
+            geom_sf(data = bike_routes, mapping = aes(geometry = geometry)) +
+            theme_void()
+    })
+    
+    output$value <- renderPrint({ input$dates }) # figure out how to set a default date range
+}
+
+
+shinyApp(ui, server)

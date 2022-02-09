@@ -1,0 +1,12 @@
+date <datetime> - date when the incident occurred, sometimes a best estimate
+primary_type <character> - the primary description of the crime, based on FBI IUCR code
+description <character> - the secondary description of the IUCR code, a more detailed crime, a subcategory of the primary description
+location_description <character> - description of the location where the incident occurred
+arrest <logical> - indicates whether an arrest was made
+domestic <logical> - indicates whether the incident was domestic-related as defined by the Illinois Domestic Violence Act 
+		     (violent or abusive acts committed by one household member against another, e.g. child or spousal abuse)
+fbi_code <character> - indicates the crime classification as outlined in the FBI's National Incident-Based Reporting System (NIBRS)
+latitude <numeric> - the latitude of the location where the incident occurred. This location is shifted from the actual location 
+		     for partial redaction but falls on the same block
+longitude <numeric> - the longitude of the location where the incident occurred. This location is shifted from the actual location 
+		      for partial redaction but falls on the same block
