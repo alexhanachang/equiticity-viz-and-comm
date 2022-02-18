@@ -65,8 +65,6 @@ crimes_type %>%
   geom_sf(data = bike_routes, mapping = aes(geometry = geometry)) +
   theme_void()
 
-  Battery is a much more violent crime than theft, so the communities with battery as the top crime are likely more dangerous and less bikeable than communities with theft as the top crime. The bike lanes seem to confirm this trend, as there is a concentration of bike lanes in the communities with theft as the main crime and fewer in communities with battery as the main crime
-
 ### Proportion of crimes that are bike/street-related per community with Divvy bike lanes
 
 
@@ -78,7 +76,6 @@ crimes_street %>%
   scale_fill_viridis()
 
 
-  The relationship is less obvious here so you might not want to use it, but there still definitely seems to be a higher concentration of Divvy bike lanes in communities with a smaller proportion of street crime, and those areas seem to line up with communities that have battery as their main crime.
 
 ### Map for Proportion arrested due to crimes by community with Divvy bike lanes
 
@@ -89,7 +86,6 @@ crimes_arrest %>%
   theme_void() +
   scale_fill_viridis()
 
-  Once again, we see a higher concentration of bike lanes in areas with lower arrest rates, and very few bike lanes in southwest Chicago where the arrest proportion is the highest. I also know from Census data that the southwest area is primarily Black, which suggests possible racial biases of police.
 
 ### Crime Rate by Community
 
@@ -133,10 +129,3 @@ crimes_census %>%
   geom_point(mapping = aes(x = lat, y = long, size = crime_rate), color = "red", alpha = 0.5) +
   theme_void() +
   scale_fill_viridis()
-
-# Crime rate is defined as the number of crimes per 100,000 people. As usual, we see that there are more bike lanes in areas with low crime rates. Divvy to population rate is defined (by me) as the number of Divvy stations per 100,000 people. Divvy to area rate is the number of Divvy stations divided by the area in square miles. The Divvy to population map doesn't yield much correlation, but the Divvy per area reveals a lower Divvy per area rate in southern neighborhoods with more crimes.
-# 
-# If you compare these maps to the census demographic maps (the ones Lauren sent in #general), we see higher crime rates, more violent crimes, more arrests and fewer bike lanes and stations in southern neighborhoods, which also generally have a higher Black population, more unemployment and fewer college degrees.
-# 
-
-
