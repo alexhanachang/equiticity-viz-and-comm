@@ -1,0 +1,241 @@
+---
+title: "L04 Model Workflows"
+subtitle: "Data Science II (STAT 301-2)"
+author: "Olivia Lee"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    highlight: "tango"
+    code_folding: "show"
+---
+
+<!-- Set global options for R code chunks -->
+```{r global-settings, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, message = FALSE
+)
+```
+
+## Overview
+
+The goal of this lab is to introduce the process of initiating a model workflow.
+
+This lab accompanies [6. Fitting models with parsnip](https://www.tmwr.org/models.html) and [7. A model workflow](https://www.tmwr.org/workflows.html) from [Tidy Modeling with R](https://www.tmwr.org/).
+
+### Load Packages & Set a Seed
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Load packages here!
+library(tidyverse)
+library(tidymodels)
+library(ggplot2)
+library(dplyr)
+
+tidymodels_prefer()
+
+# Set seed here!
+set.seed(3012)
+```
+
+## Exercises
+
+We will be modifying and extending our work in L03 where we specified and fit several models predicting home price to the KC housing dataset (`data\kc_house_data.csv`). Recall the dataset contains 21,613 house sale prices (`price`) and other information for homes sold between May 2014 and May 2015 in King County, WA.
+
+You may find some of the code from L03 useful as reference or for building upon.
+
+### Exercise 1
+
+We are setting up our workflows for training predictive models so we should begin by setting up our training and testing sets.
+
+Begin by loading the data and making sure that in is minimally prepared for the fitting models. At minimum we should check that data is being read in correctly, variables are being typed correctly, and inspect the response/target variable (make adjustments if necessary).
+
+```{r}
+kc_house_data <- read_csv("/Users/olivialee/Desktop/STAT 301-2/L04_model_workflows/data/kc_house_data.csv")
+
+kc_house_data <- kc_house_data %>% 
+  janitor::clean_names() %>%
+  mutate(
+    price_log = log10(price),
+    waterfront = factor(waterfront),
+    view = factor(view, ordered = TRUE),
+    grade = factor(grade, ordered = TRUE),
+    condition = factor(condition, ordered = TRUE),
+    )
+
+as_tibble(kc_house_data)
+```
+
+
+1. From L03 we know that we will want to perform a $log_{10}$ transformation of our outcome variable.
+2. We will want to re-type several variables as factors: `waterfront` (nominal/un-orderded), `view` (ordered), `condition` (ordered), and `grade` (ordered).
+
+Now perform an initial split of the dataset into testing and training sets using the `rsample` package. We suggest using strata when splitting because it is rarely a bad idea. Use the default number of strata. What is the default number of strata used? 
+
+
+```{r}
+kc_split <- initial_split(kc_house_data, prop = 0.80, strata = price)
+kc_train <- training(kc_split)
+kc_test  <-  testing(kc_split)
+
+dim(kc_train)
+dim(kc_test)
+```
+
+The default is 4 strata.
+
+------------------------------------------------------------------------
+
+***For the remainder of the lab, unless specified, you should assume that you are working with the training data created in this step.*** Always think about what you are doing. If you are fitting/training models then you should be using the training set. Testing data should be used when we are trying to assess model performance which is done be evaluating model predictions.
+
+------------------------------------------------------------------------
+
+### Exercise 2
+
+Let's specify 3 model types and define a workflow for each:
+
+- Ordinary linear regression
+
+```{r}
+lm_spec <-
+  linear_reg() %>%
+  set_engine("lm")
+```
+
+
+- Regularized/penalized linear regression (elastic net `glmnet`) with `mixture = 1`, which is called lasso regression, with `penalty = 0.01`.
+
+```{r}
+lasso_spec <-
+  linear_reg(penalty = 0.01, mixture = 1) %>%
+  set_engine("glmnet")
+```
+
+
+- Regularized/penalized linear regression (elastic net `glmnet`) with `mixture = 0` which is called ridge regression, with `penalty = 0.01`.
+
+```{r}
+ridge_spec <-
+  linear_reg(penalty = 0.01, mixture = 0) %>%
+  set_engine("glmnet")
+```
+
+
+```{r}
+lm_wflow <- workflow() %>%
+  add_model(lm_spec)
+
+lasso_wflow <- workflow() %>%
+  add_model(lasso_spec)
+
+ridge_wflow <- workflow() %>%
+  add_model(ridge_spec)
+```
+
+
+**Challenge --- not required**
+-- Random forest model using `ranger` with `trees = 500` and `min_n = 5`
+
+### Exercise 3
+
+For each workflow define/add a processing step that uses `waterfront`, `sqft_living`, `yr_built`, and `bedrooms` to predict the target/outcome variable.  
+
+This can be done using formula syntax or by using the add variables interface. For practice, try one-way for one workflow and then the way on the remaining workflows.
+
+Fit each of model workflow to the training set and store. 
+
+Compare each of fitted models using `broom::tidy()`. Output is not enough, you should write a few sentences.
+
+```{r}
+lm_wflow <- lm_wflow %>%
+    update_formula(price_log ~ waterfront + sqft_living + yr_built + bedrooms)
+
+lm_fit <- fit(lm_wflow, kc_train)
+
+lasso_wflow <- lasso_wflow %>%
+  update_variables(
+    outcomes = price_log,
+    predictors = c(waterfront, sqft_living, yr_built, bedrooms)
+  )
+
+lasso_fit <- fit(lasso_wflow, kc_train)
+
+ridge_wflow <- ridge_wflow %>%
+  update_variables(
+    outcomes = price_log,
+    predictors = c(waterfront, sqft_living, yr_built, bedrooms)
+  )
+
+ridge_fit <- fit(ridge_wflow, kc_train)
+```
+
+```{r}
+lm_fit %>% tidy()
+lasso_fit %>% tidy()
+ridge_fit %>% tidy()
+```
+
+
+
+### Exercise 4
+
+Update/change each workflow by defining/adding a processing step that uses all the variables except for `id`, `date`, `zipcode`, and maybe `price` (this depends on how the log transform step at the beginning was handled) to predict the target/outcome variable.  
+
+Fit each of model workflow to the training set and store. 
+
+Compare each of fitted models using `broom::tidy()`. Output is not enough, you should write a few sentences.
+
+```{r}
+lm_wflow <- lm_wflow %>%
+  update_variables(
+    outcomes = price_log,
+    predictors = !c(id, date, zipcode, price)
+  )
+
+lm_fit <- fit(lm_wflow, kc_train)
+
+lasso_wflow <- lasso_wflow %>%
+  update_variables(
+    outcomes = price_log,
+    predictors = !c(id, date, zipcode, price)
+  )
+
+lasso_fit <- fit(lasso_wflow, kc_train)
+
+ridge_wflow <- ridge_wflow %>%
+  update_variables(
+    outcomes = price_log,
+    predictors = !c(id, date, zipcode, price)
+  )
+
+ridge_fit <- fit(ridge_wflow, kc_train)
+
+lm_fit %>% tidy()
+lasso_fit %>% tidy()
+ridge_fit %>% tidy()
+```
+
+
+#### Predictions
+
+Using the lasso fitted model, calculate predicted values on both the log scale and original scale of the outcome variable. 
+
+When doing this it would be useful to also include the actual/observed outcome from the test set.
+
+
+```{r}
+(lasso_pred <- 
+   kc_test %>%
+   select(price_log, price) %>%
+   bind_cols(
+     predict(lasso_fit, kc_test)) %>%
+   mutate(
+     .pred_price = 10^.pred
+     ) %>%
+  select(price_log, .pred, price, .pred_price))
+```
+
+### Challenge
+**Not Required**
+
+Set up a workflow set using `workflowsets` package that would cover all the work necessary for Exercises 2 - 4. 
