@@ -1,10 +1,6 @@
-
-
 ## SHINY APP THEME
 library(bslib)
-library(dplyr)
 library(extrafont)
-library(ggplot2)
 library(janitor)
 library(shiny)
 library(showtext)
@@ -20,8 +16,6 @@ divvytheme <- bslib::bs_theme(
   base_font = font_google("Maven Pro"),
   heading_font = font_google("Maven Pro")
 )
-
-bslib::bs_theme_preview(divvytheme)
 
 ## colors for divvy theme:
 # "#5FB3E0"
@@ -44,8 +38,6 @@ equiticitytheme <- bslib::bs_theme(
   warning = "#B4D9C7",
   danger = "#7F998C"
 )
-
-bslib::bs_theme_preview(equiticitytheme)
 
 ## colors used for equiticity theme:
 # "#668C7A" (sage)

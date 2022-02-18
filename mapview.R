@@ -19,7 +19,7 @@ crimes_type_map <- communities %>%
   right_join(crimes_type, by = c('community_id' = 'community_id')) %>% 
   select(community_id, community, primary_type, num_crimes, geometry)
 
-mapview(
+map <- mapview(
   crimes_type_map, 
   zcol = "num_crimes", 
   popup = leafpop::popupTable(crimes_type_map, zcol = c("community", "num_crimes")))
