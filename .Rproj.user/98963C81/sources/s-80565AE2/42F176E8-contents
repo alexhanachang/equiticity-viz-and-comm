@@ -6,8 +6,6 @@ library(skimr)
 library(spData)
 library(tidyverse)
 
-install::
-
 communities <- readRDS('data/communities.RDS')
 crimes <- read_csv('data/violence_enforcement/crimes_2021.csv')
 
@@ -21,8 +19,10 @@ crimes_type_map <- communities %>%
   right_join(crimes_type, by = c('community_id' = 'community_id')) %>% 
   select(community_id, community, primary_type, num_crimes, geometry)
 
-mapview(crimes_type_map, 
-        zcol = "primary_type")
-       # popup = leafpop::popupTable(crimes_type_map, zcol = c("community", "num_crimes")))
+mapview(
+  crimes_type_map, 
+  zcol = "num_crimes", 
+  popup = leafpop::popupTable(crimes_type_map, zcol = c("community", "num_crimes")))
+
 
 
