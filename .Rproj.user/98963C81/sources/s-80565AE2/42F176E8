@@ -3,7 +3,7 @@
     "path": "~/Desktop/winter 2022/STAT 359/equiticity-viz-and-comm/mapview.R",
     "project_path": "mapview.R",
     "type": "r_source",
-    "hash": "59592795",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1645216220823.0,
@@ -17,11 +17,11 @@
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1645218091,
+    "lastKnownWriteTime": 1645218318,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1645218091708,
+    "last_content_update": 1645218318,
     "read_only": false,
     "read_only_alternatives": []
 }
