@@ -1,0 +1,96 @@
+---
+title: "Station Roll Outs"
+author: "Sherry Sun"
+date: "2/17/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages
+
+```{r packages, message=F}
+library(tidyverse)
+library(skimr)
+library(sf)
+library(maps)
+library(ggmap)
+library(mapdata)
+library(readxl)
+library(ggthemes)
+```
+
+## Data
+
+```{r data, message=F}
+station_rollouts <- read_excel("drafting visualizations/vis_1/Full Network to Date Station Install Dates - 2_1_22.xlsx") %>% 
+  janitor::clean_names()
+
+
+station_rollouts <- mutate(station_rollouts, 
+                           rollout_year = format(as.Date(station_rollouts$install_date,
+                                                         format="%Y/%m/%d"),"%Y", ),
+                           rollout_month = format(as.Date(station_rollouts$install_date,
+                                                         format="%Y/%m/%d"),"%m", )
+)
+```
+
+## Visualization
+
+```{r ILbase}
+states <- map_data("state")
+IL <- subset(states, region %in% c("illinois"))
+counties <- map_data("county")
+IL_county <- subset(counties, region == "illinois")
+
+il_base <- ggplot(data = IL, mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(color = "black", fill = NA) + 
+  theme_nothing()
+
+il_base + 
+  geom_polygon(data = IL_county, fill = NA, color = "black") +
+  geom_polygon(color = "black", fill = NA) 
+```
+
+```{r stations}
+cook_county <- filter(IL_county, subregion == "cook")
+
+cook_base <- ggplot(data = cook_county, mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(data = cook_county, fill = NA, color = "black") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_map()
+
+cook_base +
+  geom_point(aes(x= lon, y=lat, group = rollout_year, color = rollout_year), 
+             data = station_rollouts,  
+             show.legend = TRUE, alpha = 0.5)+
+  theme(legend.position = "right")
+  
+# capacity
+cook_base +
+  geom_point(aes(x= lon, y=lat, group = rollout_year, color = capacity), 
+             data = station_rollouts, alpha = 0.5) +
+  facet_wrap(~rollout_year)+
+  theme(legend.position = "right")
+
+# rollout month breakdown 
+cook_base +
+  geom_point(aes(x= lon, y=lat, group = rollout_year, color = rollout_year), 
+             data = station_rollouts, alpha = 0.5) +
+  theme(legend.position = "right")
+```
+
+## Month Rollout Breakdown
+```{r month breakdown}
+y2013 <- station_rollouts %>% 
+  filter(rollout_year == "2013")
+
+cook_base +
+  geom_point(aes(x= lon, y=lat, group = rollout_month, color = rollout_month), 
+             data = y2013, alpha = 0.5)
+```
+
