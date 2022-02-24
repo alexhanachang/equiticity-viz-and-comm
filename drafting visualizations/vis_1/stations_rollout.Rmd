@@ -25,7 +25,7 @@ library(ggthemes)
 ## Data
 
 ```{r data, message=F}
-station_rollouts <- read_excel("Full Network to Date Station Install Dates - 2_1_22.xlsx") %>% 
+station_rollouts <- read_excel("drafting visualizations/vis_1/Full Network to Date Station Install Dates - 2_1_22.xlsx") %>% 
   janitor::clean_names()
 
 
@@ -35,20 +35,6 @@ station_rollouts <- mutate(station_rollouts,
                            rollout_month = format(as.Date(station_rollouts$install_date,
                                                          format="%Y/%m/%d"),"%m", )
 )
-```
-
-
-```{r}
-communities <- readRDS("data/communities.RDS")
-communities[order(communities$community),]
-
-station_rollouts %>% 
-  mutate(community_area = (community_area %>% str_to_title()))
-
-station_rollouts[order(station_rollouts$community_area), ]
-
-library(mapview)
-mapview(station_rollouts, zcol = "capacity")
 ```
 
 ## Visualization
@@ -93,9 +79,8 @@ cook_base +
 
 # rollout month breakdown 
 cook_base +
-  geom_point(aes(x= lon, y=lat, group = rollout_year, color = rollout_month), 
+  geom_point(aes(x= lon, y=lat, group = rollout_year, color = rollout_year), 
              data = station_rollouts, alpha = 0.5) +
-  facet_wrap(~rollout_year)+
   theme(legend.position = "right")
 ```
 
