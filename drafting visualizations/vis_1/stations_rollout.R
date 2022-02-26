@@ -33,4 +33,27 @@ stations_rollout <- read_excel("drafting visualizations/vis_1/Full Network to Da
   # community_area is NA because stations are in Evanston, not Chicago
   filter(!is.na(community))
 
+# convert data frame to sf object
+stations_rollout <- st_as_sf(
+  x = stations_rollout, 
+  coords = c("lon", "lat"))
+
+st_crs(stations_rollout)
+st_crs(communities)
+stations_rollout <- st_set_crs(stations_rollout, 4326)
+communities <- st_set_crs(communities, 4326)
+
+# use st_join() to join stations_rollout and communities
+stations_rollout <- st_join(stations_rollout, left = FALSE, communities) %>% 
+  mutate(
+    community = community.x
+  ) %>% 
+  mutate(rollout_year_binned = factor(rollout_year, 
+                                      levels = c(2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021), 
+                                      labels = c("2013-2015", "2013-2015", "2016-2017", "2016-2017", 
+                                                 "2018-2019", "2018-2019", "2020-2021", "2020-2021")
+  )) %>% 
+  dplyr::select(station, community, region, rollout_year, rollout_year_binned, geometry) 
+
+# save
 write_rds(stations_rollout, "data/stations_rollout.RDS")
