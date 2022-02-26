@@ -3,6 +3,7 @@ library(mapview)
 library(leaflet)
 library(sf)
 library(shiny)
+library(tidyverse)
 
 mapviewOptions(fgb = FALSE)
 
@@ -15,7 +16,7 @@ communities <- readRDS("data/communities.RDS")
 
 ##################################################################
 # define UI
-map_ui <- fluidPage(
+rollout_map_ui <- fluidPage(
   
   # app title
   titlePanel("Divvy Stations Rollout"),
@@ -37,29 +38,38 @@ map_ui <- fluidPage(
 )
 
 # define server
-map_server <- function(input, output) {
+rollout_map_server <- function(input, output) {
   
-  fran <- reactive({
-    f <- stations_rollout
-    if(input$year != "All") f <-
-        f <- stations_rollout[stations_rollout$rollout_year == input$year, ] 
-    
-    f
+  # reactive input/output
+  map_year <- reactive({
+    filter_year <- stations_rollout
+    if(input$year != "All") filter_year <-
+        filter_year <- stations_rollout[stations_rollout$rollout_year == input$year, ] 
+    filter_year
   })
   
+  # output
   output$map <- renderLeaflet({
     
     # get data
-    f <- fran()
+    filter_year <- map_year()
     
     # generate map
-    (mapview(communities, zcol = "region") + mapview(f, 
-                                                     xcol = "lon", ycol = "lat", 
-                                                     zcol = "rollout_year", grid = FALSE))@map
+    (mapview(
+        communities, 
+        zcol = "region"
+      ) + 
+      mapview(
+        filter_year, 
+        xcol = "lon", ycol = "lat", 
+        zcol = "rollout_year", 
+        grid = FALSE
+      )
+    )@map
   })
 }
 
 # run app 
-shinyApp(ui = ui, server = server)
+shinyApp(ui = rollout_map_ui, server = rollout_map_server)
 
 

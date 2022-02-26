@@ -1,4 +1,5 @@
 equiticity-viz-and-comm.Rproj
+/data cleaning scripts/*
 *.Rproj
 *.Rproj.user
 *.Rhistory

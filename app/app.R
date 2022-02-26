@@ -24,10 +24,12 @@ library(tidyverse)
 mapviewOptions(fgb = FALSE)
 
 # read in data
-stations_rollout <- readRDS("data/stations_rollout.RDS") %>% 
-  mutate(rollout_year = rollout_year %>% factor())
+stations_rollout <- readRDS("data/stations_rollout.RDS")
 
 communities <- readRDS("data/communities.RDS")
+
+# UI and server
+source("mapview app.R")
 
 ##################################################################
 # define UI
@@ -36,7 +38,7 @@ ui <- fluidPage(
    # theme = equiticitytheme,
     "PAGE TITLE",
     navbarMenu("Divvy stations rollout",
-               tabPanel("Stations rollout", "map of gang territories"),
+               tabPanel("Stations rollout", map_ui),
                tabPanel("panel 3c", "3c")
     ),
     navbarMenu("Divvy Station/Bike Prevalence by Community Demographics",
@@ -50,7 +52,7 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   thematic::thematic_shiny()
-  
+  map_server
 }
 
 shinyApp(ui,server)
