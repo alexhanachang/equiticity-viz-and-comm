@@ -22,22 +22,23 @@ ui <- fluidPage(
     # position sidebar
    mainPanel(),
      position = "right", 
-      # radio buttons for fill variable
-    #   radioButtons(
-    #     inputId = "year", 
-    #     label = "Select year", 
-    #     choices = list(
-    #       2013, 2014, 2015
-    #     ), 
-    #     selected = 2015
-    #   )
-    # ), 
+   
+   # radio buttons for fill variable
+      radioButtons(
+        inputId = "year",
+        label = "Select year",
+        choices = list(
+          2013, 2014, 2015
+        ),
+        selected = 2015
+      )
+    ),
     
     # show plot
     mainPanel(
       leafletOutput("distPlot")
     )
-  ))
+  )
 
 
 server <- function(input, output) {
@@ -71,3 +72,8 @@ server <- function(input, output) {
 }
 
 shinyApp(ui, server)
+
+
+
+
+
