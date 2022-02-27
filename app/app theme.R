@@ -39,6 +39,11 @@ equiticitytheme <- bslib::bs_theme(
   danger = "#7F998C"
 )
 
+library(RColorBrewer)
+equiticitytheme_colorbrewer <- palette(
+  c("#FFFFFF", "#000000", "#668C7A", "#8C5F58", "#6BA033", "#EDFFF6", "#B4D9C7", "#7F998C"
+))
+
 ## colors used for equiticity theme:
 # "#668C7A" (sage)
 # "#8C5F58" (brown)

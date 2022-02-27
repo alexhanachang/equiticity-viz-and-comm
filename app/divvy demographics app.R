@@ -9,21 +9,10 @@ mapviewOptions(fgb = FALSE)
 
 # read in data
 stations_rollout <- readRDS("data/stations_rollout.RDS") %>% 
-  mutate(
-    rollout_year = rollout_year %>% factor(),
-    region = region %>% factor(),
-    community = community %>% factor()
-  ) %>% 
-  mutate(region = fct_relevel(
-    region, "Far North Side", "Northwest Side", "North Side", "West Side", "Central", 
-    "Southwest Side", "South Side", "Far Southwest Side", "Far Southeast Side")
-  )
+  mutate(rollout_year = rollout_year %>% factor())
 
-communities <- readRDS("data/communities.RDS") %>% 
-  mutate(region = fct_relevel(
-    region, "Far North Side", "Northwest Side", "North Side", "West Side", "Central", 
-    "Southwest Side", "South Side", "Far Southwest Side", "Far Southeast Side")
-  )
+communities <- readRDS("data/communities.RDS")
+
 
 ##################################################################
 # define UI
@@ -35,9 +24,9 @@ rollout_map_ui <- fluidPage(
   # select year
   sidebarLayout(
     sidebarPanel(
-      selectInput("year", "Year",
+      selectInput("fill_var", "Fill variable",
                   choices = c("All", levels(stations_rollout$rollout_year)),
-                  selected = "All", multiple = TRUE
+                  selected = "All", multiple = FALSE
       )
     ),
     
@@ -67,16 +56,15 @@ rollout_map_server <- function(input, output) {
     
     # generate map
     (mapview(
-        communities, 
-        zcol = "region"
-      ) + 
-      mapview(
-        filter_year, 
-        xcol = "lon", ycol = "lat", 
-        zcol = "rollout_year", 
-        layer.name = "Year",
-        grid = FALSE
-      )
+      communities, 
+      zcol = "region"
+    ) + 
+        mapview(
+          filter_year, 
+          xcol = "lon", ycol = "lat", 
+          zcol = "rollout_year", 
+          grid = FALSE
+        )
     )@map
   })
 }

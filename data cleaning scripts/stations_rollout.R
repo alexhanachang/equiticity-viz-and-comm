@@ -1,4 +1,3 @@
-# load packages
 library(broom)
 library(bslib)
 library(dplyr)
@@ -54,7 +53,12 @@ stations_rollout <- st_join(stations_rollout, left = FALSE, communities) %>%
                                       labels = c("2013-2015", "2013-2015", "2016-2017", "2016-2017", 
                                                  "2018-2019", "2018-2019", "2020-2021", "2020-2021")
   )) %>% 
+  mutate(region = fct_relevel(
+    region, "Far North Side", "Northwest Side", "North Side", "West Side", "Central", 
+    "Southwest Side", "South Side", "Far Southwest Side", "Far Southeast Side")
+  ) %>% 
   dplyr::select(station, community, region, rollout_year, rollout_year_binned, geometry) 
 
 # save
 write_rds(stations_rollout, "data/stations_rollout.RDS")
+write_rds(stations_rollout, "app/data/stations_rollout.RDS")

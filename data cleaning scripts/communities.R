@@ -32,6 +32,15 @@ communities <- communities %>%
   ) %>% 
   arrange(community_id) %>% 
   left_join(regions) %>% 
+  mutate(
+    region = region %>% factor()
+  ) %>% 
+  mutate(
+    region = fct_relevel(
+      region, "Far North Side", "Northwest Side", "North Side", "West Side", "Central", 
+      "Southwest Side", "South Side", "Far Southwest Side", "Far Southeast Side"
+    )
+  ) %>% 
   select(community_id, community, region, geometry) 
 
 # rename Mckinley Park to McKinley Park
@@ -40,3 +49,5 @@ communities[59, 2] <- "McKinley Park"
 
 # save
 saveRDS(communities, "data/communities.RDS")
+saveRDS(communities, "app/data/communities.RDS")
+
