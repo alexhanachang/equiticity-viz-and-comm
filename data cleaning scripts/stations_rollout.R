@@ -19,6 +19,8 @@ library(spData)
 library(thematic)
 library(tidyverse)
 
+communities <- read_rds("data/communities.RDS")
+
 stations_rollout <- read_excel("drafting visualizations/vis_1/Full Network to Date Station Install Dates - 2_1_22.xlsx") %>% 
   janitor::clean_names() %>% 
   mutate(
@@ -32,6 +34,8 @@ stations_rollout <- read_excel("drafting visualizations/vis_1/Full Network to Da
   # remove rows where community_area is NA
   # community_area is NA because stations are in Evanston, not Chicago
   filter(!is.na(community))
+
+stations_rollout[stations_rollout$community == "Mckinley Park", "community"] <- "McKinley Park"
 
 # convert data frame to sf object
 stations_rollout <- st_as_sf(
@@ -53,10 +57,6 @@ stations_rollout <- st_join(stations_rollout, left = FALSE, communities) %>%
                                       labels = c("2013-2015", "2013-2015", "2016-2017", "2016-2017", 
                                                  "2018-2019", "2018-2019", "2020-2021", "2020-2021")
   )) %>% 
-  mutate(region = fct_relevel(
-    region, "Far North Side", "Northwest Side", "North Side", "West Side", "Central", 
-    "Southwest Side", "South Side", "Far Southwest Side", "Far Southeast Side")
-  ) %>% 
   dplyr::select(station, community, region, rollout_year, rollout_year_binned, geometry) 
 
 # save

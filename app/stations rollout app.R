@@ -42,7 +42,7 @@ rollout_map_ui <- fluidPage(
     ),
     
     # show map
-    mainPanel(
+    fillPage(
       mapviewOutput("map")
     )
   )
@@ -68,14 +68,17 @@ rollout_map_server <- function(input, output) {
     # generate map
     (mapview(
         communities, 
-        zcol = "region"
+        zcol = "region", 
+        col.regions = brewer.pal(9, "Blues")
       ) + 
       mapview(
         filter_year, 
         xcol = "lon", ycol = "lat", 
         zcol = "rollout_year", 
         layer.name = "Year",
-        grid = FALSE
+        grid = FALSE,
+        col.regions = brewer.pal(8, "RdPu"), 
+        cex = 3
       )
     )@map
   })

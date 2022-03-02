@@ -6,6 +6,7 @@ library(leaflet)
 library(leafpop)
 library(mapview)
 library(rgdal)
+library(RColorBrewer)
 library(sf)
 library(shiny)
 library(skimr)
@@ -46,7 +47,7 @@ for(i in levels(race_distribution$community_id)){
   race_plots[[i]] <- plot
 }
 
-mapview(divvy_demographics, zcol = "prop_white", popup = popupGraph(race_plots))
+mapview(divvy_demographics, zcol = "prop_white", popup = popupGraph(race_plots), col.regions = brewer.pal(6, "Blues"))
 
 
 ## income
@@ -83,5 +84,8 @@ for(i in levels(income_distribution$community_id)){
 mapview(
   divvy_demographics, 
   zcol = "msh_index_score",
-  popup = popupGraph(income_plots))
+  popup = popupGraph(income_plots),
+  col.regions = brewer.pal(6, "Blues")
+  )
+
 

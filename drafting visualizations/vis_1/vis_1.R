@@ -2,8 +2,6 @@
 # load packages
 library(gganimate)
 library(mapview)
-library(move)
-library(moveVis)
 library(RColorBrewer)
 library(sf)
 library(tidyverse)
@@ -86,3 +84,39 @@ mapview(
   )
 
 mapview(stations_rollout)
+
+
+# ridgeline plot
+library(ggridges)
+library(readxl)
+
+stations_rollout_ridge <- read_excel("drafting visualizations/vis_1/Full Network to Date Station Install Dates - 2_1_22.xlsx") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    community = (community_area %>% str_to_title()),
+    station = name,
+    rollout_year = format(as.Date(install_date, format="%Y/%m/%d"),"%Y", ),
+    rollout_month = format(as.Date(install_date, format="%Y/%m/%d"),"%m", )
+  ) %>% 
+  filter(!is.na(community)) 
+
+stations_rollout_ridge[stations_rollout_ridge$community == "Mckinley Park", "community"] <- "McKinley Park"
+
+stations_rollout_ridge <- stations_rollout_ridge %>% 
+  left_join(communities, by = c("community" = "community")) %>% 
+  dplyr::select(station, community, region, rollout_year)
+
+stations_rollout_ridge <- stations_rollout_ridge %>% 
+  group_by(region, rollout_year) %>% 
+  summarise(new_stations = n()) %>% 
+  mutate(rollout_year = rollout_year %>% as.numeric())
+# set breaks
+
+ggplot(stations_rollout_ridge, aes(x = rollout_year, y = region)) + 
+  geom_density_ridges() + 
+  theme_ridges() 
+
+
+
+
+
