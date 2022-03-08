@@ -1,0 +1,275 @@
+---
+title: "Station Roll Outs"
+author: "Sherry Sun"
+date: "2/17/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages
+
+```{r packages, message=F}
+library(tidyverse)
+library(skimr)
+library(sf)
+library(maps)
+library(ggmap)
+library(mapdata)
+library(readxl)
+library(ggthemes)
+library(extrafont)
+library(showtext)
+library(gganimate)
+```
+
+## Data
+
+```{r data, message=F}
+station_rollouts <- read_excel("Full Network to Date Station Install Dates - 2_1_22.xlsx") %>% 
+  janitor::clean_names()
+
+year <- lubridate::year(station_rollouts$install_date)
+
+station_rollouts <- mutate(station_rollouts, 
+                           rollout_year = lubridate::year(station_rollouts$install_date),
+                           rollout_month = lubridate::month(station_rollouts$install_date))
+
+communities <- read_sf('geo/geo_export_45d4da8d-3fc8-4ccb-9b0c-8f546d526c9a.shp')
+
+bike_routes <- read_sf('geo/geo_export_02f6b9aa-6d14-4951-9963-31aeaa95c2b8.shp')
+```
+
+## Theme
+
+```{r equiticity}
+# equiticity
+font_import(pattern = "Arial")
+# creating custom equiticity theme
+equiticitycolors <- c("#EDFFF6", "#BEE6D3", "#B4D9C7", "#9FBFB0", "#7F998C", "#4A5952")
+equiticitytheme <- theme_minimal() +
+  theme(text = element_text(family = "Arial", face = "bold", color = "#668C7A"), axis.text = element_text(color = "#6BA033"))
+equiticitycolortheme <- list(equiticitytheme, scale_color_manual(values = equiticitycolors))
+```
+
+## Visualization
+
+```{r ILbase}
+base <- ggplot() +
+  geom_sf(data = communities, mapping = aes(geometry = geometry), color = "#B5DAC8") +
+  geom_sf(data = bike_routes, mapping = aes(geometry = geometry), color = "#4A5952") +
+  theme_void()
+```
+
+```{r stations}
+gif <- base +
+  geom_point(aes(x= lon, y=lat, group = rollout_year), color = "#5fb3e0", 
+             data = station_rollouts,  
+             show.legend = TRUE,
+             alpha = 0.7)+
+  theme(legend.position = "right") +
+  # Here comes the gganimate specific bits
+  labs(title = 'New Station Rollouts for Year: {frame_time}') +
+  transition_time(rollout_year) +
+  ease_aes('linear')
+
+```
+
+## Annual Rollout Breakdown
+```{r year breakdown}
+# 2013
+y2013 <- station_rollouts %>% 
+  filter(rollout_year == "2013")
+
+# 2013-2015
+y20135 <- station_rollouts %>% 
+  filter(rollout_year <= "2015")
+
+# 2015
+y2015 <- station_rollouts %>% 
+  filter(rollout_year == "2015")
+
+# 2013-2016
+y20136 <- station_rollouts %>% 
+  filter(rollout_year <= "2016")
+
+# 2016
+y2016 <- station_rollouts %>% 
+  filter(rollout_year == "2016")
+
+# 2013-2017
+y20137 <- station_rollouts %>% 
+  filter(rollout_year <= "2017")
+
+# 2017
+y2017 <- station_rollouts %>% 
+  filter(rollout_year == "2017")
+
+# 2013-2018
+y20138 <- station_rollouts %>% 
+  filter(rollout_year <= "2018")
+
+# 2018
+y2018 <- station_rollouts %>% 
+  filter(rollout_year == "2018")
+
+# 2013-2019
+y20139 <- station_rollouts %>% 
+  filter(rollout_year <= "2019")
+
+# 2019
+y2019 <- station_rollouts %>% 
+  filter(rollout_year == "2019")
+
+# 2013-2020
+y20130 <- station_rollouts %>% 
+  filter(rollout_year <= "2020")
+
+#2020
+y2020 <- station_rollouts %>% 
+  filter(rollout_year == "2020")
+
+# 2013-2021
+y20131 <- station_rollouts %>% 
+  filter(rollout_year <= "2021")
+
+#2021
+y2021 <- station_rollouts %>% 
+  filter(rollout_year == "2021")
+
+```
+
+## Annual Breakdowns
+
+```{r code}
+# 2013 
+graph_2013 <- base +
+  geom_point(aes(x= lon, y=lat), 
+             color = "#5fb3e0",
+             data = y2013, 
+             alpha = 0.9)+
+  labs(
+    title = "Divvy Station Rollouts: 2013",
+    subtitle = "New stations added are denoted in blue"
+  ) 
+
+# 2015
+graph_2015 <- base +
+  geom_point(aes(x= lon, y=lat), 
+             color = "#536873",
+             data = y2013, 
+             alpha = 0.7)+
+  geom_point(aes(x= lon, y=lat), 
+             color = "#5fb3e0",
+             data = y2015, 
+             alpha = 0.9)+
+  labs(
+    title = "Divvy Station Rollouts: 2015",
+    subtitle = "New stations added are denoted in blue"
+  ) 
+
+# 2016
+graph_2016 <- base +
+  geom_point(aes(x= lon, y=lat), 
+             color = "#536873",
+             data = y20135, 
+             alpha = 0.7)+
+  geom_point(aes(x= lon, y=lat), 
+             color = "#5fb3e0",
+             data = y2016, 
+             alpha = 0.9)+
+  labs(
+    title = "Divvy Station Rollouts: 2016",
+    subtitle = "New stations added are denoted in blue"
+  )
+
+# 2017
+graph_2017 <- base +
+  geom_point(aes(x= lon, y=lat), 
+             color = "#536873",
+             data = y20136, 
+             alpha = 0.7)+
+  geom_point(aes(x= lon, y=lat), 
+             color = "#5fb3e0",
+             data = y2017, 
+             alpha = 0.9)+
+  labs(
+    title = "Divvy Station Rollouts: 2017",
+    subtitle = "New stations added are denoted in blue"
+  )
+
+# 2018
+graph_2018 <- base +
+  geom_point(aes(x= lon, y=lat), 
+             color = "#536873",
+             data = y20137, 
+             alpha = 0.7)+
+  geom_point(aes(x= lon, y=lat), 
+             color = "#5fb3e0",
+             data = y2018, 
+             alpha = 0.9)+
+  labs(
+    title = "Divvy Station Rollouts: 2018",
+    subtitle = "New stations added are denoted in blue"
+  )
+
+# 2019
+graph_2019 <- base +
+  geom_point(aes(x= lon, y=lat), 
+             color = "#536873",
+             data = y20138, 
+             alpha = 0.7)+
+  geom_point(aes(x= lon, y=lat), 
+             color = "#5fb3e0",
+             data = y2019, 
+             alpha = 0.9)+
+  labs(
+    title = "Divvy Station Rollouts: 2019",
+    subtitle = "New stations added are denoted in blue"
+  )
+
+# 2020
+graph_2020 <- base +
+  geom_point(aes(x= lon, y=lat), 
+             color = "#536873",
+             data = y20139, 
+             alpha = 0.7)+
+  geom_point(aes(x= lon, y=lat), 
+             color = "#5fb3e0",
+             data = y2020, 
+             alpha = 0.9)+
+  labs(
+    title = "Divvy Station Rollouts: 2020",
+    subtitle = "New stations added are denoted in blue"
+  )
+
+# 2021
+graph_2021 <- base +
+  geom_point(aes(x= lon, y=lat), 
+             color = "#536873",
+             data = y20130, 
+             alpha = 0.7)+
+  geom_point(aes(x= lon, y=lat), 
+             color = "#5fb3e0",
+             data = y2021, 
+             alpha = 0.9)+
+  labs(
+    title = "Divvy Station Rollouts: 2021",
+    subtitle = "New stations added are denoted in blue"
+  )
+
+```
+
+```{r viz}
+graph_2013
+graph_2015
+graph_2016
+graph_2017
+graph_2018
+graph_2019
+graph_2020
+graph_2021
+```
+

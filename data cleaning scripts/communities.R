@@ -47,6 +47,9 @@ communities <- communities %>%
 filter(communities, community == "Mckinley Park")
 communities[59, 2] <- "McKinley Park"
 
+filter(communities, community == "Ohare")
+communities[76, 2] <- "O'Hare"
+
 # save
 saveRDS(communities, "data/communities.RDS")
 saveRDS(communities, "app/data/communities.RDS")

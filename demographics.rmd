@@ -1,0 +1,63 @@
+---
+title: "Demographic Scatterplots"
+author: "Jordi Parry"
+date: "3/6/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+census <- readRDS("selected_data_for_viz_com_fixed.rds")
+```
+
+```{r theme, message=FALSE}
+library(extrafont)
+library(showtext)
+library(ggplot2)
+library(tidyverse)
+library(janitor)
+# equiticity
+font_import(pattern = "Arial")
+# creating custom equiticity theme
+equiticitycolors <- c("#EDFFF6", "#BEE6D3", "#B4D9C7", "#9FBFB0", "#7F998C", "#4A5952")
+equiticitytheme <- theme_minimal() +
+  theme(text = element_text(family = "Arial", face = "bold", color = "#668C7A"), axis.text = element_text(color = "#6BA033"))
+equiticitycolortheme <- list(equiticitytheme, scale_color_manual(values = equiticitycolors))
+```
+
+
+```{r, message=FALSE}
+# Stations & Bikes by MSH Index
+ggplot(census, aes(x = msh_index_score, y = num_stations_capita)) + geom_point(color = "#4A5952") + geom_smooth(method=lm, se=FALSE, colour = "#9FBFB0") + labs(x = "MSH Index Score", title = "Stations Per Capita by Community Area", y = NULL) +
+  equiticitytheme
+
+ggplot(census, aes(x = msh_index_score, y = num_bikes_capita)) + geom_point(color = "#4A5952") + geom_smooth(method=lm, se=FALSE, colour = "#9FBFB0") + labs(x = "MSH Index Score", title = "Bikes Per Capita by Community Area", y = NULL) +
+  equiticitytheme
+
+# By % white
+ggplot(census, aes(x = prop_white, y = num_stations_capita)) + geom_point(color = "#4A5952") + geom_smooth(method=lm, se=FALSE, colour = "#9FBFB0") + labs(x = "% White", title = "Stations Per Capita by Community Area", y = NULL) +
+  equiticitytheme
+
+ggplot(census, aes(x = prop_white, y = num_bikes_capita)) + geom_point(color = "#4A5952") + geom_smooth(method=lm, se=FALSE, colour = "#9FBFB0") + labs(x = "% White", title = "Bikes Per Capita by Community Area", y = NULL) +
+  equiticitytheme
+
+# By % low_income
+ggplot(census, aes(x = under_pov_perc, y = num_stations_capita)) + geom_point(color = "#4A5952") + geom_smooth(method=lm, se=FALSE, colour = "#9FBFB0") + labs(x = "% Below Poverty Line", title = "Stations Per Capita by Community Area", y = NULL) +
+  equiticitytheme
+
+ggplot(census, aes(x = under_pov_perc, y = num_bikes_capita)) + geom_point(color = "#4A5952") + geom_smooth(method=lm, se=FALSE, colour = "#9FBFB0") + labs(x = "% Below Poverty Line", title = "Bikes Per Capita by Community Area", y = NULL) +
+  equiticitytheme
+```
+
+```{r}
+# By no vehicle percent
+ggplot(census, aes(x = no_vech_perc, y = num_stations_capita)) + geom_point(color = "#4A5952") + geom_smooth(method=lm, se=FALSE, colour = "#9FBFB0") + labs(x = "% Without Vehicles", title = "Stations Per Capita by Community Area", y = NULL) +
+  equiticitytheme
+
+ggplot(census, aes(x = no_vech_perc, y = num_bikes_capita)) + geom_point(color = "#4A5952") + geom_smooth(method=lm, se=FALSE, colour = "#9FBFB0") + labs(x = "% Without Vehicles", title = "Bikes Per Capita by Community Area", y = NULL) +
+  equiticitytheme
+```
+

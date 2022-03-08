@@ -36,6 +36,7 @@ stations_rollout <- read_excel("drafting visualizations/vis_1/Full Network to Da
   filter(!is.na(community))
 
 stations_rollout[stations_rollout$community == "Mckinley Park", "community"] <- "McKinley Park"
+stations_rollout[stations_rollout$community == "Ohare", "community"] <- "O'Hare"
 
 # convert data frame to sf object
 stations_rollout <- st_as_sf(

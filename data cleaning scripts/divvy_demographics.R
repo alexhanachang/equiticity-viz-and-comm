@@ -1,4 +1,4 @@
-read_rds("data/census/selected_data_for_viz_com.rds")
+selected_data_for_viz_com <- read_rds("data/unprocessed data/census/selected_data_for_viz_com.rds")
 
 divvy_demographics <- left_join(communities, selected_data_for_viz_com, by = c("community_id" = "community_id")) %>% 
   mutate(
@@ -15,5 +15,4 @@ divvy_demographics <- divvy_demographics %>%
 
 write_rds(divvy_demographics, "data/divvy_demographics.RDS")
 write_rds(divvy_demographics, "app/data/divvy_demographics.RDS")
-
 

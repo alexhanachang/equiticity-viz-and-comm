@@ -1,0 +1,54 @@
+---
+title: "Themes for Data Science Project"
+author: "Jordi Parry"
+date: "1/31/2022"
+output: 
+  html_document:
+        code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r divvy}
+# divvy theme
+library(extrafont)
+library(showtext)
+library(ggplot2)
+library(tidyverse)
+library(janitor)
+
+divhist  <- readxl::read_xlsx("divvy_historical_first50rows - Mimi Wang.xlsx") %>% clean_names()
+# creating custom divvy theme
+divvytheme <- theme_minimal() +
+  theme(text = element_text(family = "Maven Pro", face = "bold"), axis.text = element_text(color = "#5FB3E0"))
+divvycolors <- c("#5FB3E0", "#C5D0D9", "#A2A6F2")
+divvycolortheme <- list(divvytheme, scale_color_manual(values = divvycolors))
+ggplot(data = mtcars, aes(x = mpg, y = disp, color = factor(cyl))) + geom_point() + labs(x = "MPG", y = "Display", title = "Divvy Sample with other data") + divvycolortheme
+ggplot(data = divhist, aes(x = total_docks, y = percent_full)) +
+  geom_point(color = "#A2A6F2") + labs(x = "Total Docks", y = "Percent Full", title = "Divvy Bikes Divvy Theme") + divvytheme
+```
+
+```{r equiticity}
+# equiticity
+font_import(pattern = "Arial")
+# creating custom equiticity theme
+equiticitycolors <- c("#EDFFF6", "#BEE6D3", "#B4D9C7", "#9FBFB0", "#7F998C", "#4A5952")
+equiticitytheme <- theme_minimal() +
+  theme(text = element_text(family = "Arial", face = "bold", color = "#668C7A"), axis.text = element_text(color = "#6BA033"))
+equiticitycolortheme <- list(equiticitytheme, scale_color_manual(values = equiticitycolors))
+```
+
+```{r heatmap}
+library(rgdal)
+shp <- readOGR(dsn = "Boundaries - Community Areas (current) (1)/geo_export_ffbe343c-781b-4dd4-909e-612bd86b9622.shp")
+equiticitymaptheme <- theme_void() +
+  theme(text = element_text(family = "Arial", face = "bold", color = "#8C5F58"), axis.text = element_text(color = "#6BA033"))
+map <- ggplot() + geom_polygon(data = shp, aes(x = long, y = lat, group = group), colour = "black", fill = NA)
+map + geom_point(data = divhist, aes(x = longitude, y = latitude, color = docks_in_service), size = 4) +
+                                       scale_color_gradient(low = "#BEE6D3", high = "#4A5952") + equiticitymaptheme +
+ theme(axis.text = element_blank()) +
+  labs(title = "Docks in Service by Station Location", color = element_blank())
+```
+
