@@ -14,6 +14,7 @@ library(sf)
 library(shiny)
 library(thematic)
 library(tidyverse)
+library(viridis)
 
 mapviewOptions(fgb = FALSE)
 
@@ -21,7 +22,7 @@ mapviewOptions(fgb = FALSE)
 census <- read_rds("data/census.RDS")
 communities <- read_rds("data/communities.RDS")
 divvy_demographics <- readRDS("data/divvy_demographics.RDS")
-divvy_density <- readRDS("data/divvy_density.RDS")
+divvy_stations_density <- readRDS("data/divvy_stations_density.RDS")
 divvy_stations <- readRDS("data/divvy_stations.RDS") 
 
 income_plots <- readRDS("data/income_plots.RDS")
@@ -42,6 +43,15 @@ communities_vector <- communities_vector$community
 divvy_stations <- divvy_stations %>% 
   arrange(rollout_year) %>% 
   mutate(rollout_year = factor(rollout_year, ordered = TRUE)) 
+
+
+## V+ e
+census <- read_rds("data/census.RDS")
+relevant_crimes_community <- read_rds("data/relevant_crimes_community.RDS")
+police_sentiment_data <- read_rds("data/police_sentiment_data.RDS")
+crime_statistics <- read_rds("data/crime_statistics.RDS")
+
+community_labs <- relevant_crimes_community$community
 
 
 ##################################################################
@@ -93,6 +103,111 @@ ui <- bootstrapPage(
         mapviewOutput("stations_density_map")
       )
     ), 
+    
+    ## V + E
+    tabPanel(
+      # page title
+      "V + #",
+      # select year
+      sidebarLayout(position = "right",
+                    sidebarPanel(
+                      # crimes input
+                      p("The following lineplot shows the total number of outdoor/vehicle-related
+            crimes for each year from 2013-2021."),
+            selectInput(inputId = "community_input", 
+                        label = "Select Community:",
+                        choices = as.list(community_labs),
+                        selected = 1),
+            p("----------
+            ----------
+            ---------"),
+            p("----------
+            ----------
+            ---------"),
+            p("----------
+            ----------
+            ---------"),
+            p("----------
+            ----------
+            ---------"),
+            p("----------
+            ----------
+            ---------"),
+            p("----------
+            ----------
+            ---------"),
+            p("----------
+            ----------
+            ---------"),
+            p("----------
+            ----------
+            ---------"),
+            p("Crime rate is defined as the number of crimes per 100,000 people. 
+          Divvy to population rate is defined as the number of Divvy
+          stations per 100,000 people. Divvy to area rate is the number of Divvy stations 
+          divided by the area in square miles. The Divvy to population map doesn't yield
+          much correlation, but the Divvy per area reveals a lower Divvy per area rate in 
+          southern neighborhoods with more crimes."),
+          # crimerate input
+          radioButtons(inputId = "crimerate_input", 
+                       label = "Select Measure:",
+                       choices = as.list(c("divvy_to_area",
+                                           "divvy_to_pop")),
+                       selected = "divvy_to_area"),
+          # police sentiment
+          p("----------
+            ----------
+            ---------"),
+          p("----------
+            ----------
+            ---------"),
+          p("----------
+            ----------
+            ---------"),
+          p("----------
+            ----------
+            ---------"),
+          p("----------
+            ----------
+            ---------"),
+          p("----------
+            ----------
+            ---------"),
+          p("Chicago Police Sentiment (2017-2021)"),
+          p("Data can be found in the Chicago Data Portal. It is updated monthly and the data 
+            owner is the Chicago Police Department, categorized under ‘Public Safety’. 
+            Sorted by the 77 communities, this data is aggregated by year. 
+            Each column gives either a trust or safety score for a demographic group, 
+            or the average score across the entire community. The demographic categories 
+            include age, sex, race, education, and income level. "),
+          radioButtons("fill", 
+                       label = "Select Trust or Safety Score for Fill",
+                       choices = list("Trust Score", 
+                                      "Safety Score"),
+                       selected = "Trust Score"),
+                    ),
+          
+          # Show a plot of the generated distribution
+          mainPanel(
+            plotOutput("crimes_timeline"),
+            plotOutput("crimerate_map"),
+            plotOutput("trust_safety_plot"),
+            plotOutput("gangs_plots"),
+            plotOutput("crashes_plot")
+          )
+      # div(
+      #   class = "outer",
+      #   tags$style(type = "text/css", "#stations_density_map {height: calc(100vh - 80px) !important;}"),
+      #   absolutePanel(
+      #     span(tags$i(h6("This is a map of all of the Divvy bike stations in Chicago.")), style = "color: #FFFFFF"),
+      #     span(tags$i(h6("You can also click on an individual station (represented by a single point)")), style = "color: #FFFFFF"),
+      #     top = 75, left = 75, width = 200, class = "panel panel-default", fixed = TRUE,
+      #     style = "padding: 8px; border-bottom: 1px solid #CCC; background: #5FB3E0; opacity: 1; z-index: 100;"),
+      #   
+      #   # show map
+      #   mapviewOutput("stations_density_map")
+      )
+    ), 
    
     ## Chicago demographics page (popup graphs)
     navbarMenu(
@@ -103,6 +218,7 @@ ui <- bootstrapPage(
         "Race",
         div(
           class = "outer",
+          tags$style(type = "text/css", "#race_map {height: calc(100vh - 80px) !important;}"),
           absolutePanel(
             span(tags$i(h6("This is a map for exploring the racial demographics of communities across Chicago.
                            This map is scaled to the proportion of the community that is White;
@@ -113,13 +229,17 @@ ui <- bootstrapPage(
             span(tags$i(h6("")), style = "color: #FFFFFF"),
             top = 75, left = 75, width = 200, class = "panel panel-default", fixed = TRUE,
             style = "padding: 8px; border-bottom: 1px solid #CCC; background: #5FB3E0; opacity: 1; z-index: 100;"),
-          mapviewOutput("race_map", height = 710)
+          
+          # show map
+          mapviewOutput("race_map")
           ),
       ),
 
       tabPanel(
         "Income",
         div(
+          class = "outer", 
+          tags$style(type = "text/css", "#income_map {height: calc(100vh - 80px) !important;}"),
           absolutePanel(
             span(tags$i(h6("This is a map for exploring the income demographics of communities across Chicago.
                            This map is scaled to the median income of the community;
@@ -128,12 +248,14 @@ ui <- bootstrapPage(
             span(tags$i(h6("By clicking on a neighborhood, a popup graph will appear, and you will see the income breakdown of the community area.")), style = "color: #FFFFFF"),
             top = 75, left = 75, width = 200, class = "panel panel-default", fixed = TRUE,
             style = "padding: 8px; border-bottom: 1px solid #CCC; background: #5FB3E0; opacity: 1; z-index: 100;"),
-          mapviewOutput("income_map", height = 710)
+          
+          # show map
+          mapviewOutput("income_map")
         )
       )
     ),
     
-    ## Exmplore a community
+    ## Explore a community
     tabPanel(
       # page title
       "Explore a Community",
@@ -167,8 +289,8 @@ ui <- bootstrapPage(
           features a series of interactive maps that connect demographic data from the American Community Survey and
           Divvy bike sharing data from the City of Chicago Data Portal. These visualizations demonstrate how the Divvy bike 
           sharing program is less accessible in lower-income, predominantly non-White communities — in that Divvy bike stations
-          were introduced later, there are fewer stations, and there are fewer bikes within a 2-mile radius — in comparison 
-          to higher-income, predominantly White communities.", tags$br(), tags$br(),
+          were introduced later, there are fewer stations, and there are fewer stations on average within a 2-mile radius — than
+          in higher-income, predominantly White communities.", tags$br(), tags$br(),
           "This research project was organized by the ",
           tags$a(href="https://sites.northwestern.edu/mcdc/", "Metropolitan Chicago Data-Science Corps (MCDC),"),
           'which is "a collaboration of community organizations and data science students and experts from multiple Chicago-area 
@@ -188,7 +310,7 @@ ui <- bootstrapPage(
           # code
           tags$h4("Code"), 
           "Code and cleaned datasets used to generate this Shiny application are available on ", 
-            tags$a(href="https://github.com/alexhanachang/equiticity-viz-and-comm", "GitHub."), tags$br(), tags$br(), 
+            tags$a(href="https://github.com/alexhanachang/chicago-bike-share-inequity-app", "GitHub."), tags$br(), tags$br(), 
           # sources
           tags$h4("Sources"),
             tags$b("Divvy data: "), 
@@ -250,7 +372,7 @@ server <- function(input, output, session) {
               map.types = "CartoDB.Positron",
               xcol = "lon", ycol = "lat", zcol = "rollout_year", 
               layer.name = "Year of station </br> installation",
-              col.regions = divvy_pal,
+              col.regions = c("#c7e4f4", "#a9defb", "#89d5ff", "#6cccff", "#5fb3e0", "#3a97c9", "#007abc", "#005a8b"),
               alpha.regions = 1,
               color = "white",
               label = "station",
@@ -265,26 +387,28 @@ server <- function(input, output, session) {
   
   ## Divvy Bike Density Map
   output$stations_density_map <- renderLeaflet({
-    (mapview(divvy_density,
+    (mapview(divvy_stations_density,
              map.types = "CartoDB.Positron",
              zcol = "avg_in_2_mi_radius",
              layer.name = "Average number </br> of Divvy bikes in </br> a 2-mile radius",
              col.regions = equiticity_pal,
              alpha.regions = 1,
-             popup = popupTable(divvy_density, zcol = c("community", "avg_in_2_mi_radius"))))@map
+             popup = popupTable(divvy_stations_density, zcol = c("community", "avg_in_2_mi_radius"))))@map
   })  
 
+  ## Chicago Demographics Maps (RACE)
   output$race_map <- renderLeaflet({
     mapview(divvy_demographics, 
             map.types = "CartoDB.Positron",
             zcol = "prop_white", 
-            layer.name = "Proportion of  </br> population that is </br> White",
+            layer.name = "Proportion of </br> population that is </br> White",
             col.regions = equiticity_pal, 
             alpha.regions = 1,
             label = "community",
             popup = popupGraph(race_plots, type = "png", width = 600, height = 400))@map
   })
   
+  ## Chicago Demographics Maps (INCOME)
   output$income_map <- renderLeaflet({
     mapview(divvy_demographics, 
             map.types = "CartoDB.Positron",
@@ -296,20 +420,20 @@ server <- function(input, output, session) {
             popup = popupGraph(income_plots, type = "png", width = 600, height = 400))@map
   })
   
-  # output
-  output$race_map_select <- renderLeaflet({
-    # get data
-
-    # generate map
-    (mapview(communities %>% filter(community == input$community),
-             map.types = "CartoDB.Positron",
-             # zcol = "prop_white",
-             layer.name = "Proportion of  </br> population that is </br> White",
-             col.regions = list("#c7e4f4"),
-             alpha.regions = 1,
-             label = "community",
-             popup = popupGraph(race_plots[[((communities %>% st_drop_geometry() %>% filter(communities$community == input$community))[[1]])]],
-                                type = "png", width = 600, height = 400)))@map})
+  # # output
+  # output$race_map_select <- renderLeaflet({
+  #   # get data
+  # 
+  #   # generate map
+  #   (mapview(communities %>% filter(community == input$community),
+  #            map.types = "CartoDB.Positron",
+  #            # zcol = "prop_white",
+  #            layer.name = "Proportion of </br> population that is </br> White",
+  #            col.regions = list("#c7e4f4"),
+  #            alpha.regions = 1,
+  #            label = "community",
+  #            popup = popupGraph(race_plots[[((communities %>% st_drop_geometry() %>% filter(communities$community == input$community))[[1]])]],
+  #                               type = "png", width = 600, height = 400)))@map})
   
   
 
@@ -330,8 +454,9 @@ server <- function(input, output, session) {
     # map output
     mapview(filter_community, 
             map.types = "CartoDB.Positron",
-            # zcol = "prop_white", 
-            layer.name = "Proportion of  </br> population that is </br> White",
+            legend = FALSE,
+            # # zcol = "prop_white", 
+            # layer.name = "Proportion of  </br> population that is </br> White",
             col.regions = list("#c7e4f4"),
             alpha.regions = 1,
             label = "community"
@@ -349,12 +474,82 @@ server <- function(input, output, session) {
               label = "station",
               cex = 4,
               popup = popupTable(
-                filter_year,
+                density_filter_community,
                 zcol = c("station", "community", "rollout_year")
               )
       )
   })
   output$map_select_community <- renderLeaflet({community_reactive()@map})
+  
+  
+  
+  ## V+E
+  output$crimes_timeline <- renderPlot({
+    
+    # user-supplied community area
+    # relevant_crimes_community_plot <- relevant_crimes_community %>% 
+    #   filter(community == input$community_input)
+    
+    # building timeline plot
+    relevant_crimes_community %>% 
+      filter(community == input$community_input) %>% 
+      ggplot(aes(x = year, y = num_crimes)) +
+      geom_line(color = "#7F998C", size = 1) +
+      geom_point(color = "#4A5952", size = 4) +
+      labs(
+        x = "Year",
+        y = "Crimes",
+        title = "Crimes in Chicago Over Time"
+      )  +
+      theme_minimal() +
+      theme(text = element_text(family = "Arial", face = "bold", color = "#668C7A"), axis.text = element_text(color = "#6BA033")) +
+      scale_x_continuous(breaks = seq(2013, 2021, 1))
+    
+  })
+  
+  output$crimerate_map <- renderPlot({
+    
+    # user-supplied input
+    pop_or_area <- case_when(
+      input$crimerate_input == "divvy_to_area" ~ pull(crime_statistics, divvy_to_area),
+      input$crimerate_input == "divvy_to_pop" ~ pull(crime_statistics, divvy_to_pop),
+    )
+    
+    crime_statistics %>% 
+      ggplot() +
+      geom_sf(mapping = aes(geometry = geometry, fill = pop_or_area)) +
+      geom_point(mapping = aes(x = lat, y = lon, size = crime_rate), 
+                 color = "red", alpha = 0.5) +
+      theme_void() +
+      labs(title = 
+             "Crime Rate by Community") +
+      theme(text = element_text(family = "Arial", face = "bold", color = "#668C7A")) +
+      scale_fill_viridis()
+    
+  })
+  
+  # police sentiment plot
+  output$trust_safety_plot <- renderPlot({
+    
+    # variable for fill
+    fill_var <- switch(input$fill,
+                       "Trust Score" = police_sentiment_data$trust, 
+                       "Safety Score" = police_sentiment_data$safety
+    )
+    
+    # creating the map
+    crime_statistics %>% 
+      filter(community != "All - Chicago") %>% 
+      ggplot() +
+      geom_sf(mapping = aes(geometry = geometry, fill = fill_var)) +
+      theme_void() +
+      labs(title = 
+             "Police Sentiments by Community") +
+      theme(text = element_text(family = "Arial", face = "bold", color = "#668C7A")) +
+      scale_fill_viridis()
+    
+  })
+  
 }
 
 
