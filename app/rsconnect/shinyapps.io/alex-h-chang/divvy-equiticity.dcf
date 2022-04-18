@@ -5,9 +5,10 @@ account: alex-h-chang
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5740240
-bundleId: 5658207
+bundleId: 5808389
 url: https://alex-h-chang.shinyapps.io/divvy-equiticity/
-when: 1646774311.44854
-lastSyncTime: 1646774311.44856
+when: 1650256156.81856
+lastSyncTime: 1650256156.81858
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: app theme.R|page1.R|shiny-run.R
