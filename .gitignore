@@ -1,3 +1,4 @@
-equiticity-viz-and-comm.Rproj
-/.Rproj.user/*
-
+/.Rproj.user
+/.Rhistory
+/equiticity-viz-and-comm.Rproj
+/app/data/demographics_plots_no_title.RDS
